@@ -1,0 +1,24 @@
+# Secrets — NEVER commit
+.env
+
+# Runtime / local state
+hackradar.db
+*.db
+.watchlist_hashes.json
+
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

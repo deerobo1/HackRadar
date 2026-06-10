@@ -1,0 +1,52 @@
+name: HackRadar — Snooze Check
+
+on:
+  schedule:
+    # Run every 15 minutes to re-fire due snoozed items and deadline reminders
+    - cron: "*/15 * * * *"
+  workflow_dispatch:   # Allow manual runs from the GitHub UI
+
+jobs:
+  snooze:
+    name: Check & Re-fire Snoozed Items
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # Restore the same DB cache used by the main run.yml workflow
+      - name: Restore database cache
+        uses: actions/cache@v4
+        with:
+          path: hackradar.db
+          key: hackradar-db-${{ github.run_number }}
+          restore-keys: |
+            hackradar-db-
+
+      - name: Run snooze check
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        run: python snooze.py
+
+      # Save the updated DB
+      - name: Save database cache
+        uses: actions/cache@v4
+        if: always()
+        with:
+          path: hackradar.db
+          key: hackradar-db-${{ github.run_number }}

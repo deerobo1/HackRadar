@@ -1,0 +1,30 @@
+# HackRadar — Python dependencies
+# Install: pip install -r requirements.txt
+
+# ── Core ─────────────────────────────────────────────────────────────────────
+pyyaml>=6.0.1
+
+# ── HTTP / HTML scraping ─────────────────────────────────────────────────────
+requests>=2.31.0
+beautifulsoup4>=4.12.3
+lxml>=5.1.0                  # faster HTML/XML parser for BeautifulSoup
+
+# ── RSS / Atom feed parsing ──────────────────────────────────────────────────
+feedparser>=6.0.11
+
+# ── Headless browser (LinkedIn scraper — local only) ────────────────────────
+selenium>=4.20.0
+webdriver-manager>=4.0.1
+
+# ── AI / LLM filter (Google Gemini Flash — FREE tier) ──────────────────────────
+# ── AI / LLM filter (Google Gemini Flash — FREE tier) ──────────────────────────
+google-genai>=1.0.0
+
+# ── Telegram notifications ───────────────────────────────────────────────────
+python-telegram-bot>=21.3
+
+# ── WhatsApp notifications (Twilio) ──────────────────────────────────────────
+twilio>=9.1.0
+
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dateutil>=2.9.0       # robust date parsing from scraper output

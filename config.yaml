@@ -1,0 +1,146 @@
+# HackRadar Configuration
+# ========================
+# Edit this file to personalise your hackathon radar.
+# No redeployment or code changes needed — just update and re-run.
+
+# ---------------------------------------------------------------------------
+# 1. INTEREST PROFILE
+#    Plain English description of what hackathons you care about.
+#    Claude Sonnet reads this verbatim to decide if a hackathon is relevant.
+# ---------------------------------------------------------------------------
+interest_profile: |
+  I am a backend Python developer with strong ML/AI experience.
+  I am interested in hackathons focused on AI, machine learning, developer tools,
+  open source, and fintech. I prefer online or hybrid events so I can participate
+  from anywhere. Prizes above $5,000 USD are a strong plus but not required.
+  I am NOT interested in gaming-only, hardware-only, or purely marketing hackathons.
+  I prefer events with a clear submission deadline at least 2 weeks away.
+
+# ---------------------------------------------------------------------------
+# 2. NOTIFICATION CHANNEL
+#    Choose "telegram" or "whatsapp". Only one is active at a time.
+#    Switch channels by changing this single value — no code changes needed.
+# ---------------------------------------------------------------------------
+notification_channel: telegram   # "telegram" | "whatsapp"
+
+# ---------------------------------------------------------------------------
+# 3. SNOOZE SETTINGS
+# ---------------------------------------------------------------------------
+snooze_duration_hours: 48        # How many hours before a snoozed item re-fires
+
+# ---------------------------------------------------------------------------
+# 4. TELEGRAM
+#    Get your bot token from @BotFather on Telegram.
+#    Get your chat_id by messaging @userinfobot.
+#    In production, set these as environment variables / GitHub Secrets instead.
+# ---------------------------------------------------------------------------
+telegram:
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+  chat_id: "${TELEGRAM_CHAT_ID}"
+
+# ---------------------------------------------------------------------------
+# 5. WHATSAPP (Twilio)
+#    Requires a Twilio account with the WhatsApp sandbox enabled.
+#    In production, set these as environment variables / GitHub Secrets instead.
+# ---------------------------------------------------------------------------
+whatsapp:
+  account_sid: "${TWILIO_ACCOUNT_SID}"
+  auth_token: "${TWILIO_AUTH_TOKEN}"
+  from_number: "whatsapp:+14155238886"   # Twilio sandbox number (change for production)
+  to_number: "whatsapp:+919999999999"    # Your WhatsApp number with country code
+  webhook_url: ""                        # Your server URL for incoming reply webhooks
+
+# ---------------------------------------------------------------------------
+# 6. WATCHLIST URLS
+#    Pages to monitor for new hackathon announcements (hash-diff method).
+#    Add any company blog, careers page, or event listing you want tracked.
+# ---------------------------------------------------------------------------
+watchlist_urls:
+  - https://devpost.com/hackathons
+  - https://unstop.com/hackathons
+  - https://mlh.io/seasons
+  - https://developer.microsoft.com/en-us/reactor/
+  - https://events.google.com/io/
+  - https://www.kaggle.com/competitions
+  - https://lablab.ai/event
+
+# ---------------------------------------------------------------------------
+# 7. SOCIAL / NITTER RSS FEEDS
+#    Nitter is a privacy-friendly Twitter/X frontend that exposes RSS feeds.
+#    Add search terms you want to monitor for hackathon announcements.
+# ---------------------------------------------------------------------------
+nitter_rss_feeds:
+  - https://nitter.net/search/rss?q=%23hackathon&f=tweets
+  - https://nitter.net/search/rss?q=%23builtwithAI&f=tweets
+  - https://nitter.net/search/rss?q=hackathon+2025&f=tweets
+  - https://nitter.net/search/rss?q=hackathon+registration+open&f=tweets
+
+# ---------------------------------------------------------------------------
+# 8. LINKEDIN  (⚠️  Run LOCALLY only — GitHub Actions IPs are blocked)
+#    Use a dedicated throwaway LinkedIn account. Never your main account.
+#    Credentials are read from environment variables, never hardcoded here.
+# ---------------------------------------------------------------------------
+linkedin:
+  email: "${LINKEDIN_EMAIL}"
+  password: "${LINKEDIN_PASSWORD}"
+  hashtags:
+    - hackathon
+    - builtwithAI
+    - devhackathon
+    - codingchallenge
+  company_pages:
+    - microsoft
+    - google
+    - amazon
+    - devpost
+    - mlhacks
+  headless: true        # Set false for local debugging
+  proxy: ""             # Optional residential proxy: "http://user:pass@host:port"
+
+# ---------------------------------------------------------------------------
+# 9. GEMINI (Google AI Studio — FREE tier)
+#    Get your free API key at: https://aistudio.google.com/app/apikey
+#    API key is always read from the GEMINI_API_KEY environment variable.
+#    Do NOT paste your key here — use GitHub Secrets or a local .env file.
+#    Free tier: 1,500 requests/day, 1M tokens/min — more than enough.
+# ---------------------------------------------------------------------------
+gemini:
+  model: "gemini-2.0-flash"     # Free tier model (fast + accurate)
+  max_output_tokens: 512         # Response length cap for filter output
+  temperature: 0.1               # Low = more deterministic JSON
+
+# ---------------------------------------------------------------------------
+# 10. DATABASE
+# ---------------------------------------------------------------------------
+database:
+  path: "hackradar.db"          # SQLite file path (relative to repo root)
+
+# ---------------------------------------------------------------------------
+# 11. SCRAPER SETTINGS
+# ---------------------------------------------------------------------------
+scrapers:
+  devpost:
+    enabled: true
+    base_url: "https://devpost.com/hackathons"
+    max_pages: 3                # Number of listing pages to scrape
+
+  unstop:
+    enabled: true
+    base_url: "https://unstop.com/hackathons"
+    max_pages: 3
+
+  mlh:
+    enabled: true
+    base_url: "https://mlh.io/seasons"
+
+  watchlist:
+    enabled: true
+    check_interval_hours: 12
+
+  social:
+    enabled: true
+    max_items_per_feed: 20     # RSS items to fetch per feed per run
+
+  linkedin:
+    enabled: false              # Disabled in CI; run manually with: python scrapers/linkedin.py
+    max_posts: 30
