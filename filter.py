@@ -1,12 +1,12 @@
 """
 filter.py — HackRadar LLM relevance filter
 ===========================================
-Sends each hackathon to Google Gemini Flash (free tier) with the user's
+Sends each hackathon to Google Gemini (free tier) with the user's
 interest profile and returns only those that match.
 
 Provider:  Google Gemini (free at aistudio.google.com)
-Model:     gemini-2.0-flash  (default — fast, free, accurate)
-API key:   Set GEMINI_API_KEY environment variable
+Model:     gemini-2.5-flash  (confirmed working on free tier)
+API key:   Set GEMINI_API_KEY in your .env file or environment
 
 Expected Gemini response (JSON):
     {
@@ -31,13 +31,13 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Prompt templates
+# Prompt
 # ---------------------------------------------------------------------------
 
 _SYSTEM_PROMPT = """You are HackRadar, an AI assistant that filters hackathon listings \
 for a developer based on their interest profile.
 
-Given a hackathon's details and the user's interest profile, you decide whether \
+Given a hackathon's details and the user's interest profile, decide whether \
 the hackathon is a good match.
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text — \
@@ -48,8 +48,8 @@ in this exact schema:
   "tags": ["<tag1>", "<tag2>", ...]
 }
 
-Tags should be concise labels extracted from the hackathon \
-(e.g. "AI", "ML", "fintech", "online", "in-person", "prize > $5k", "beginner-friendly")."""
+Tags should be concise labels (e.g. "AI", "ML", "fintech", "online", \
+"in-person", "prize > $5k", "beginner-friendly")."""
 
 
 def _build_prompt(hackathon: dict, interest_profile: str) -> str:
@@ -74,7 +74,7 @@ Does this hackathon match the user's interest profile? Respond with JSON only.""
 
 
 # ---------------------------------------------------------------------------
-# Response parser (shared — same JSON schema regardless of provider)
+# Response parser
 # ---------------------------------------------------------------------------
 
 def _parse_response(response_text: str, hackathon_name: str) -> dict[str, Any]:
@@ -88,7 +88,6 @@ def _parse_response(response_text: str, hackathon_name: str) -> dict[str, Any]:
         # Strip accidental markdown fences (```json ... ```)
         if text.startswith("```"):
             parts = text.split("```")
-            # parts[1] is the content between first pair of fences
             text = parts[1].lstrip("json").strip() if len(parts) > 1 else text
 
         data = json.loads(text)
@@ -118,8 +117,8 @@ def _parse_response(response_text: str, hackathon_name: str) -> dict[str, Any]:
 
 def _call_gemini(prompt: str, cfg) -> str:
     """
-    Send a prompt to Gemini Flash and return the raw text response.
-    Uses the official google-genai SDK (google.genai package).
+    Send a prompt to Gemini and return the raw text response.
+    Uses the official google-genai SDK.
     Install: pip install google-genai
     """
     try:
@@ -138,15 +137,15 @@ def _call_gemini(prompt: str, cfg) -> str:
         )
 
     client = genai.Client(api_key=api_key)
-    model_name = cfg.gemini.model if hasattr(cfg, "gemini") else "gemini-2.0-flash"
+    model_name = getattr(getattr(cfg, "gemini", None), "model", "gemini-2.5-flash")
 
     response = client.models.generate_content(
         model=model_name,
         contents=prompt,
         config=genai_types.GenerateContentConfig(
             temperature=0.1,
-            max_output_tokens=512,
-            response_mime_type="application/json",   # Forces valid JSON output
+            max_output_tokens=1024,          # Increased — 512 caused truncation
+            response_mime_type="application/json",
         ),
     )
     return response.text or ""
@@ -158,7 +157,7 @@ def _call_gemini(prompt: str, cfg) -> str:
 
 def filter_hackathons(hackathons: list[dict], cfg) -> list[dict]:
     """
-    Filter a list of hackathon dicts through Gemini Flash.
+    Filter a list of hackathon dicts through Gemini.
 
     Returns only hackathons where Gemini returns match=true, with two
     extra keys added to each:
@@ -172,7 +171,6 @@ def filter_hackathons(hackathons: list[dict], cfg) -> list[dict]:
     Returns:
         list of matched hackathon dicts
     """
-    # Quick guard — if no API key at all, skip gracefully
     if not os.environ.get("GEMINI_API_KEY", ""):
         log.error(
             "GEMINI_API_KEY is not set — skipping LLM filter. "
@@ -206,7 +204,7 @@ def filter_hackathons(hackathons: list[dict], cfg) -> list[dict]:
                 matched.append(enriched)
 
         except RuntimeError as exc:
-            # Config / import errors — stop immediately, don't waste API quota
+            # Config/import errors — stop immediately
             log.error("[filter] Fatal error: %s", exc)
             break
 
@@ -229,7 +227,6 @@ if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
-    # Minimal mock config
     from types import SimpleNamespace
     cfg = SimpleNamespace(
         interest_profile=(
@@ -240,7 +237,6 @@ if __name__ == "__main__":
         gemini=SimpleNamespace(model="gemini-2.5-flash"),
     )
 
-    # Sample hackathons to test
     test_hackathons = [
         {
             "name": "Google Cloud AI Hackathon",
@@ -260,10 +256,10 @@ if __name__ == "__main__":
         },
     ]
 
-    print("\n--- Running filter test with Gemini Flash ---\n")
+    print("\n--- Running filter test with Gemini ---\n")
     results = filter_hackathons(test_hackathons, cfg)
     print(f"\n--- Results: {len(results)}/{len(test_hackathons)} matched ---")
     for h in results:
-        print(f"  MATCH: {h['name']}")
+        print(f"  MATCH : {h['name']}")
         print(f"  Reason: {h['filter_reason']}")
-        print(f"  Tags: {h['filter_tags']}")
+        print(f"  Tags  : {h['filter_tags']}")

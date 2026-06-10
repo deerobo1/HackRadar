@@ -102,11 +102,11 @@ linkedin:
 #    Get your free API key at: https://aistudio.google.com/app/apikey
 #    API key is always read from the GEMINI_API_KEY environment variable.
 #    Do NOT paste your key here — use GitHub Secrets or a local .env file.
-#    Free tier: 1,500 requests/day, 1M tokens/min — more than enough.
+#    Free tier: 1,500 requests/day — more than enough for HackRadar.
 # ---------------------------------------------------------------------------
 gemini:
-  model: "gemini-2.0-flash"     # Free tier model (fast + accurate)
-  max_output_tokens: 512         # Response length cap for filter output
+  model: "gemini-2.5-flash"     # Free tier model — confirmed working
+  max_output_tokens: 1024        # Response length cap for filter output
   temperature: 0.1               # Low = more deterministic JSON
 
 # ---------------------------------------------------------------------------

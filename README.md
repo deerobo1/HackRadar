@@ -1,9 +1,16 @@
 # 🚀 HackRadar — AI-Powered Hackathon Notifier
 
+<<<<<<< HEAD
 > Automatically discover hackathons, filter them with **Google Gemini Flash** (free!), and receive personalised Telegram or WhatsApp notifications — fully automated via GitHub Actions.
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
 ![Gemini](https://img.shields.io/badge/AI-Gemini%20Flash%20(Free)-4285F4?logo=google)
+=======
+> Automatically discover hackathons, filter them with Claude AI, and receive personalised Telegram or WhatsApp notifications — fully automated via GitHub Actions.
+
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+![Claude](https://img.shields.io/badge/AI-Claude%20Sonnet-orange?logo=anthropic)
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 ![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-2088FF?logo=githubactions)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -14,7 +21,11 @@
 ```
 devpost.py ──┐
 unstop.py  ──┤
+<<<<<<< HEAD
 mlh.py     ──┼──► filter.py (Gemini Flash) ──► notifier/ ──► telegram.py
+=======
+mlh.py     ──┼──► filter.py (Claude Sonnet) ──► notifier/ ──► telegram.py
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 watchlist.py─┤         │                              │       └► whatsapp.py
 social.py  ──┤         ▼                              ▼
 linkedin.py ─┘      config.yaml              db.py (seen/snoozed/dismissed)
@@ -23,7 +34,11 @@ linkedin.py ─┘      config.yaml              db.py (seen/snoozed/dismissed)
 ```
 
 All scrapers emit a **common dict** `{ name, url, description, deadline, source }`.  
+<<<<<<< HEAD
 `filter.py` sends each to Gemini and returns `{ match, reason, tags }`.  
+=======
+`filter.py` sends each to Claude and returns `{ match, reason, tags }`.  
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 The notifier dispatcher reads a single config flag to route to Telegram or WhatsApp.  
 The SQLite DB is the single source of truth for all state.
 
@@ -44,7 +59,11 @@ hackradar/
 │   ├── __init__.py         # Dispatcher (reads config to choose channel)
 │   ├── telegram.py         # Rich messages + inline keyboard (Register/Snooze/Dismiss)
 │   └── whatsapp.py         # Twilio WhatsApp + reply-keyword action handler
+<<<<<<< HEAD
 ├── filter.py               # Gemini Flash AI relevance filter
+=======
+├── filter.py               # Claude Sonnet AI relevance filter
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 ├── snooze.py               # Re-fires due snoozed items through dispatcher
 ├── db.py                   # SQLite setup — seen, snoozed, dismissed tables
 ├── main.py                 # Orchestrator: scrape → filter → notify
@@ -132,7 +151,11 @@ linkedin:
 ### 3. Set Environment Variables (local run)
 
 ```bash
+<<<<<<< HEAD
 export GEMINI_API_KEY="..."
+=======
+export ANTHROPIC_API_KEY="sk-ant-..."
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 export TELEGRAM_BOT_TOKEN="..."
 export TELEGRAM_CHAT_ID="..."
 export TWILIO_ACCOUNT_SID="..."
@@ -143,7 +166,11 @@ export LINKEDIN_PASSWORD="..."
 
 On Windows (PowerShell):
 ```powershell
+<<<<<<< HEAD
 $env:GEMINI_API_KEY = "..."
+=======
+$env:ANTHROPIC_API_KEY = "sk-ant-..."
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 ```
 
 ### 4. Run Locally
@@ -172,11 +199,19 @@ python scrapers/linkedin.py
 
 ### Required GitHub Secrets
 
+<<<<<<< HEAD
 Go to **Settings -> Secrets and Variables -> Actions** and add:
 
 | Secret Name | Description |
 |---|---|
 | `GEMINI_API_KEY` | Free key from [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+=======
+Go to **Settings → Secrets and Variables → Actions** and add:
+
+| Secret Name | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | Your Anthropic API key |
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token from @BotFather |
 | `TELEGRAM_CHAT_ID` | Your Telegram user/group chat ID |
 | `TWILIO_ACCOUNT_SID` | Twilio Account SID (WhatsApp only) |
@@ -229,6 +264,7 @@ Consider running this on a schedule via your local machine's Task Scheduler (Win
 
 ---
 
+<<<<<<< HEAD
 ## 🧠 AI Filter (Gemini Flash — Free)
 
 `filter.py` sends each discovered hackathon to **Gemini 2.0 Flash** with:
@@ -236,6 +272,15 @@ Consider running this on a schedule via your local machine's Task Scheduler (Win
 - The hackathon's name, description, deadline, and source URL
 
 Gemini returns structured JSON:
+=======
+## 🧠 AI Filter (Claude Sonnet)
+
+`filter.py` sends each discovered hackathon to **Claude Sonnet** with:
+- Your plain-English interest profile from `config.yaml`
+- The hackathon's name, description, deadline, and source URL
+
+Claude returns structured JSON:
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 ```json
 {
   "match": true,
@@ -246,9 +291,12 @@ Gemini returns structured JSON:
 
 Only hackathons where `match: true` are forwarded to the notifier.
 
+<<<<<<< HEAD
 > **Free tier**: 1,500 requests/day — HackRadar uses ~30-50 per run, running twice a day.
 > Get your key at [aistudio.google.com](https://aistudio.google.com/app/apikey) — no credit card needed.
 
+=======
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 ---
 
 ## 🗄️ Database Schema

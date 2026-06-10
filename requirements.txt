@@ -16,9 +16,14 @@ feedparser>=6.0.11
 selenium>=4.20.0
 webdriver-manager>=4.0.1
 
+<<<<<<< HEAD
 # ── AI / LLM filter (Google Gemini Flash — FREE tier) ──────────────────────────
 # ── AI / LLM filter (Google Gemini Flash — FREE tier) ──────────────────────────
 google-genai>=1.0.0
+=======
+# ── AI / LLM filter ──────────────────────────────────────────────────────────
+anthropic>=0.28.0
+>>>>>>> dac24d037ffdab4f99a3d8d2159ea7420f409faf
 
 # ── Telegram notifications ───────────────────────────────────────────────────
 python-telegram-bot>=21.3

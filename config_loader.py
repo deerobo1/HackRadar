@@ -19,6 +19,13 @@ from typing import Optional
 
 import yaml
 
+# Auto-load .env file if present (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 log = logging.getLogger(__name__)
 
 _ENV_VAR_PATTERN = re.compile(r"\$\{([^}]+)\}")
@@ -28,7 +35,6 @@ def _resolve_env_vars(value):
     """
     Recursively walk a parsed YAML structure and replace ${VAR} placeholders
     with the corresponding environment variable value.
-    Raises ValueError if a required variable is not set.
     """
     if isinstance(value, str):
         def replacer(match):
@@ -38,9 +44,8 @@ def _resolve_env_vars(value):
                 log.warning(
                     "Environment variable '%s' is not set — leaving placeholder.", var_name
                 )
-                return match.group(0)  # Keep original placeholder
+                return match.group(0)
             return env_val
-
         return _ENV_VAR_PATTERN.sub(replacer, value)
 
     elif isinstance(value, dict):
@@ -73,8 +78,8 @@ class WhatsAppConfig:
 
 @dataclass
 class GeminiConfig:
-    model: str = "gemini-2.5-flash"   # Free tier model — confirmed working
-    max_output_tokens: int = 512
+    model: str = "gemini-2.5-flash"   # Free tier — confirmed working
+    max_output_tokens: int = 1024
     temperature: float = 0.1           # Low = more deterministic JSON output
 
 
@@ -133,10 +138,8 @@ def load_config(config_path: str = "config.yaml") -> Config:
     if raw is None:
         raise ValueError("config.yaml is empty.")
 
-    # Resolve ${ENV_VAR} placeholders throughout the entire structure
     data = _resolve_env_vars(raw)
 
-    # Build typed Config
     cfg = Config()
     cfg.interest_profile = data.get("interest_profile", "").strip()
     cfg.notification_channel = data.get("notification_channel", "telegram").lower()
@@ -164,8 +167,8 @@ def load_config(config_path: str = "config.yaml") -> Config:
     # Gemini
     gem_raw = data.get("gemini", {})
     cfg.gemini = GeminiConfig(
-        model=gem_raw.get("model", "gemini-2.0-flash"),
-        max_output_tokens=int(gem_raw.get("max_output_tokens", 512)),
+        model=gem_raw.get("model", "gemini-2.5-flash"),
+        max_output_tokens=int(gem_raw.get("max_output_tokens", 1024)),
         temperature=float(gem_raw.get("temperature", 0.1)),
     )
 
@@ -184,7 +187,7 @@ def load_config(config_path: str = "config.yaml") -> Config:
     db_raw = data.get("database", {})
     cfg.database_path = db_raw.get("path", "hackradar.db")
 
-    # Scrapers (pass raw dict through — individual scrapers read what they need)
+    # Scrapers
     cfg.scrapers = data.get("scrapers", {})
 
     _validate_config(cfg)
@@ -235,7 +238,6 @@ if __name__ == "__main__":
     print(f"   LLM model    : {cfg.gemini.model}")
     print(f"   DB path      : {cfg.database_path}")
     print(f"   Watchlist    : {len(cfg.watchlist_urls)} URLs")
-    print(f"   RSS feeds    : {len(cfg.nitter_rss_feeds)} feeds")
     gemini_set = bool(os.environ.get('GEMINI_API_KEY'))
-    print(f"   GEMINI_API_KEY: {'SET' if gemini_set else 'NOT SET (get free key at aistudio.google.com)'}")
+    print(f"   GEMINI_API_KEY: {'SET' if gemini_set else 'NOT SET'}")
     print(f"   Interest     : {cfg.interest_profile[:80]}...")

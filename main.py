@@ -5,7 +5,7 @@ Entrypoint for the full pipeline:
   1. Load config
   2. Run all enabled scrapers
   3. Deduplicate against the DB (seen + dismissed)
-  4. Pass new hackathons through the Claude filter
+  4. Pass new hackathons through the Gemini filter
   5. Send notifications for matched hackathons
   6. Mark everything as seen
 
@@ -142,8 +142,8 @@ def main():
         db.close()
         return
 
-    # 5. LLM filter — ask Claude which ones match the user's profile
-    log.info("Sending %d hackathon(s) to Claude for relevance filtering...", len(new_hackathons))
+    # 5. LLM filter — ask Gemini which ones match the user's profile
+    log.info("Sending %d hackathon(s) to Gemini for relevance filtering...", len(new_hackathons))
     matched = filter_hackathons(new_hackathons, cfg)
     log.info("%d hackathon(s) matched the interest profile.", len(matched))
 
